@@ -87,25 +87,25 @@ Inductive nkrule : assump -> proposition -> Prop :=
   | NKlem   : forall {p : proposition} {a : assump}, nkrule a (Por p (Pneg p)).
 
 Inductive njrule : assump -> proposition -> Prop :=
-    NJasp   : forall {p : proposition} {a : assump}, elem p a -> njrule a p
-  | NJandi  : forall {p1 p2 : proposition} {a : assump},
+    NJasp   : forall {a : assump} {p : proposition}, elem p a -> njrule a p
+  | NJandi  : forall {a : assump} {p1 p2 : proposition},
               njrule a p1 -> njrule a p2 -> njrule a (Pand p1 p2)
-  | NJande1 : forall {p1 p2 : proposition} {a : assump},
+  | NJande1 : forall {a : assump} {p1 p2 : proposition},
               njrule a (Pand p1 p2) -> njrule a p1
-  | NJande2 : forall {p1 p2 : proposition} {a : assump},
+  | NJande2 : forall {a : assump} {p1 p2 : proposition},
               njrule a (Pand p1 p2) -> njrule a p2
-  | NJimpi  : forall {p1 p2 : proposition} {a : assump},
+  | NJimpi  : forall {a : assump} {p1 p2 : proposition},
               njrule (p1 :: a) p2 -> njrule a (Pimp p1 p2)
-  | NJimpe  : forall {p1 p2 : proposition} {a : assump},
+  | NJimpe  : forall {a : assump} {p1 p2 : proposition},
               njrule a (Pimp p1 p2) -> njrule a p1 -> njrule a p2
-  | NJori1  : forall {p1 p2 : proposition} {a : assump},
+  | NJori1  : forall {a : assump} {p1 p2 : proposition},
               njrule a p1 -> njrule a (Por p1 p2)
-  | NJori2  : forall {p1 p2 : proposition} {a : assump},
+  | NJori2  : forall {a : assump} {p1 p2 : proposition},
               njrule a p2 -> njrule a (Por p1 p2)
-  | NJore   : forall {p1 p2 p3 : proposition} {a : assump},
+  | NJore   : forall {a : assump} {p1 p2 p3 : proposition},
               njrule a (Por p1 p2) -> njrule (p1 :: a) p3 ->
               njrule (p2 :: a) p3 -> njrule a p3
-  | NJbote  : forall {p : proposition} {a : assump}, njrule a Pbot -> njrule a p.
+  | NJbote  : forall {a : assump} {p : proposition}, njrule a Pbot -> njrule a p.
 
 Theorem NJtoNK : forall (a : assump) (p : proposition), njrule a p -> nkrule a p.
   intros.
@@ -127,10 +127,10 @@ Theorem NJK : forall {a1 a2 : assump} {p : proposition},
   intros.
   revert a2 H.
   induction H0 ; intros.
-  apply (@NJasp p a2) ; auto.
+  apply (@NJasp a2 p) ; auto.
   apply NJandi ; auto.
-  apply (@NJande1 p1 p2) ; auto.
-  apply (@NJande2 p1 p2) ; auto.
+  apply (@NJande1 _ p1 p2) ; auto.
+  apply (@NJande2 _ p1 p2) ; auto.
   apply (NJimpi (IHnjrule _ (cstep H))).
   apply (NJimpe (IHnjrule1 _ H) (IHnjrule2 _ H)).
   apply (NJori1 (IHnjrule _ H)).
@@ -140,28 +140,72 @@ Theorem NJK : forall {a1 a2 : assump} {p : proposition},
   apply (NJbote (IHnjrule a2 H)).
 Defined.
 
+Lemma NJnoti : forall {a : assump} {p1 p2 : proposition},
+               njrule (p2 :: a) (Pneg p1) -> njrule (p2 :: a) p1 -> njrule a (Pneg p2).
+  intros.
+  exact (NJimpi (NJimpe H H0)).
+Defined.
+
+Lemma NJdoubleneg : forall {a : assump} {p : proposition}, njrule a p -> njrule a (Pneg (Pneg p)).
+  intros.
+  exact (NJnoti (NJasp Ezero) (NJK (csucc cid) H)).
+Defined.
+
 Theorem NKtoNJ : forall (a : assump) (p : proposition),
                  nkrule a p -> njrule (map (fun p => Pneg (Pneg p)) a) (Pneg (Pneg p)).
   intros.
   induction H.
   exact (NJasp (emap (fun p => Pneg (Pneg p)) H)).
-  exact (NJimpi
+  exact (NJnoti
+    (NJK (csucc cid) IHnkrule1)
+    (NJnoti
+      (NJK (csucc (csucc cid)) IHnkrule2)
+      (NJnoti
+        (NJasp (Esucc (Esucc Ezero)))
+        (NJandi (NJasp (Esucc Ezero)) (NJasp Ezero))))).
+  exact (NJnoti
+    (NJK (csucc cid) IHnkrule)
+    (NJnoti (NJasp (Esucc Ezero)) (NJande1 (NJasp Ezero)))).
+  exact (NJnoti
+    (NJK (csucc cid) IHnkrule)
+    (NJnoti (NJasp (Esucc Ezero)) (NJande2 (NJasp Ezero)))).
+  exact (NJnoti
     (NJimpe
-      (NJK (csucc cid) IHnkrule1)
-      (NJimpi
-        (NJimpe
-          (NJK (csucc (csucc cid)) IHnkrule2)
-          (NJimpi
-            (NJimpe
-              (NJasp (Esucc (Esucc Ezero)))
-              (NJandi (NJasp (Esucc Ezero)) (NJasp Ezero)))))))).
-  exact (NJimpi
-    (NJimpe
-      (NJK (csucc cid) IHnkrule)
-      (NJimpi (NJimpe (NJasp (Esucc Ezero)) (NJande1 (NJasp Ezero)))))).
-  exact (NJimpi
-    (NJimpe
-      (NJK (csucc cid) IHnkrule)
-      (NJimpi (NJimpe (NJasp (Esucc Ezero)) (NJande2 (NJasp Ezero)))))).
-  apply NJimpi.
-
+      (NJimpi (NJK (cstep (csucc cid)) IHnkrule))
+      (NJnoti
+        (NJasp (Esucc Ezero))
+        (NJimpi (NJbote (NJimpe (NJasp (Esucc Ezero)) (NJasp Ezero))))))
+    (NJnoti (NJasp (Esucc Ezero)) (NJimpi (NJasp (Esucc Ezero))))).
+  exact (NJnoti
+    (NJK (csucc cid) IHnkrule1)
+    (NJnoti
+      (NJK (csucc (csucc cid)) IHnkrule2)
+      (NJnoti
+        (NJasp (Esucc (Esucc (Ezero))))
+        (NJimpe (NJasp (Esucc Ezero)) (NJasp Ezero))))).
+  exact (NJnoti
+    (NJK (csucc cid) IHnkrule)
+    (NJnoti (NJasp (Esucc Ezero)) (NJori1 (NJasp Ezero)))).
+  exact (NJnoti
+    (NJK (csucc cid) IHnkrule)
+    (NJnoti (NJasp (Esucc Ezero)) (NJori2 (NJasp Ezero)))).
+  exact (NJnoti
+    (NJK (csucc cid) IHnkrule1)
+    (NJnoti
+      (NJimpe
+        (NJK (csucc (csucc cid)) (NJimpi IHnkrule2))
+        (NJnoti
+          (NJimpe
+            (NJK (csucc (csucc (csucc cid))) (NJimpi IHnkrule3))
+            (NJimpi
+              (NJore
+                (NJasp (Esucc (Esucc Ezero)))
+                (NJimpe (NJasp (Esucc (Esucc Ezero))) (NJasp Ezero))
+                (NJimpe (NJasp (Esucc Ezero)) (NJasp Ezero)))))
+          (NJasp (Esucc (Esucc Ezero)))))
+      (NJasp (Esucc Ezero)))).
+  exact (NJnoti (NJK (csucc cid) IHnkrule) (NJimpi (NJasp Ezero))).
+  exact (NJnoti
+    (NJasp Ezero)
+    (NJori2 (NJnoti (NJasp (Esucc Ezero)) (NJori1 (NJasp Ezero))))).
+Defined.
