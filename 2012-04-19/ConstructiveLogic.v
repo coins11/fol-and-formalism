@@ -102,20 +102,13 @@ Defined.
 Lemma Himpi : forall {a : assump} {p1 p2 : proposition}, hilbert (p1 :: a) p2 -> hilbert a (p1 *-> p2).
   intros.
   refine (hilbert_ind (fun a p1 =>
-    match a with
-    | nil => hilbert nil p1
-    | p2 :: a => hilbert a (p2 *-> p1)
-    end)
-    _ _ _ _ (p1 :: a) p2 H) ; intros ; destruct a0.
-  exact (Hmp H0 H2).
+    match a with nil => True | p2 :: a => hilbert a (p2 *-> p1) end) _ _ _ _ (p1 :: a) p2 H) ;
+    intros ; destruct a0 ; auto.
   exact (Hmp (Hmp Hstarling H1) H3).
-  exact (Hasp H0).
   inversion H0.
   exact Hidentity.
   exact (Hmp Hkestrel (Hasp H3)).
-  exact Hstarling.
   exact (Hmp Hkestrel Hstarling).
-  exact Hkestrel.
   exact (Hmp Hkestrel Hkestrel).
 Defined.
 
