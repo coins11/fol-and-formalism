@@ -21,9 +21,7 @@ Definition contains {A : Set} (l1 l2 : list A) : Set :=
   forall (x : A), elem x l1 -> elem x l2.
 
 Lemma cid : forall {A : Set} {l : list A}, contains l l.
-  intros.
-  intro.
-  intro.
+  repeat intro.
   exact H.
 Defined.
 
@@ -39,9 +37,7 @@ Defined.
 
 Lemma cstep : forall {A : Set} {x : A} {l1 l2 : list A},
               contains l1 l2 -> contains (x :: l1) (x :: l2).
-  intros.
-  intro.
-  intros.
+  repeat intro.
   inversion H0.
   apply Ezero.
   apply Esucc.
@@ -50,9 +46,7 @@ Defined.
 
 Lemma csucc : forall {A : Set} {x : A} {l1 l2 : list A},
               contains l1 l2 -> contains l1 (x :: l2).
-  intros.
-  intro.
-  intros.
+  repeat intro.
   inversion H0 ; apply (Esucc (ectrans H0 H)).
 Defined.
 
@@ -209,3 +203,4 @@ Theorem NKtoNJ : forall (a : assump) (p : proposition),
     (NJasp Ezero)
     (NJori2 (NJnoti (NJasp (Esucc Ezero)) (NJori1 (NJasp Ezero))))).
 Defined.
+
