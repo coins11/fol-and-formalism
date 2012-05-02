@@ -2,11 +2,6 @@
 Require Import Arith.
 Require Import List.
 
-Inductive elem {A : Set} : A -> list A -> Prop :=
-    Ezero : forall {x : A} {y : list A}, elem x (x :: y)
-  | Esucc : forall {x : A} {y : list A} {x' : A},
-            elem x y -> elem x (x' :: y).
-
 Inductive proposition : Set :=
     Pimp  : proposition -> proposition -> proposition
   | Patom : nat -> proposition.
@@ -18,7 +13,7 @@ Definition assump : Set := list proposition.
 Inductive hilbert : assump -> proposition -> Prop :=
     Hmp       : forall {a : assump} {p1 p2 : proposition},
                 hilbert a (p1 *-> p2) -> hilbert a p1 -> hilbert a p2
-  | Hasp      : forall {a : assump} {p : proposition}, elem p a -> hilbert a p
+  | Hasp      : forall {a : assump} {p : proposition}, In p a -> hilbert a p
   | Hstarling : forall {a : assump} {p1 p2 p3 : proposition},
                 hilbert a ((p1 *-> p2 *-> p3) *-> (p1 *-> p2) *-> p1 *-> p3)
   | Hkestrel  : forall {a : assump} {p1 p2 : proposition},
@@ -26,22 +21,22 @@ Inductive hilbert : assump -> proposition -> Prop :=
 
 Inductive nd : assump -> proposition -> Prop :=
     NDmp   : forall {a : assump} {p1 p2 : proposition}, nd a (p1 *-> p2) -> nd a p1 -> nd a p2
-  | NDasp  : forall {a : assump} {p : proposition}, elem p a -> nd a p
+  | NDasp  : forall {a : assump} {p : proposition}, In p a -> nd a p
   | NDimpi : forall {a : assump} {p1 p2 : proposition}, nd (p1 :: a) p2 -> nd a (p1 *-> p2).
 
 Lemma NDstarling : forall {a : assump} {p1 p2 p3 : proposition},
                    nd a ((p1 *-> p2 *-> p3) *-> (p1 *-> p2) *-> p1 *-> p3).
   intros.
   repeat apply NDimpi.
-  apply (NDmp
-    (NDmp (NDasp (Esucc (Esucc Ezero))) (NDasp Ezero))
-    (NDmp (NDasp (Esucc Ezero)) (NDasp Ezero))).
+  apply (@NDmp _ p2).
+  apply (@NDmp _ p1) ; apply NDasp ; unfold In ; auto.
+  apply (@NDmp _ p1) ; apply NDasp ; unfold In ; auto.
 Defined.
 
 Lemma NDkestrel : forall {a : assump} {p1 p2 : proposition}, nd a (p1 *-> p2 *-> p1).
   intros.
   repeat apply NDimpi.
-  apply (NDasp (Esucc Ezero)).
+  apply NDasp ; unfold In ; auto.
 Defined.
 
 Lemma Hidentity : forall {a : assump} {p : proposition}, hilbert a (p *-> p).
@@ -64,9 +59,9 @@ Lemma Himpi : forall {a : assump} {p1 p2 : proposition}, hilbert (p1 :: a) p2 ->
     match a with nil => True | p2 :: a => hilbert a (p2 *-> p1) end) _ _ _ _ (p1 :: a) p2 H) ;
     intros ; destruct a0 ; auto.
   exact (Hmp (Hmp Hstarling H1) H3).
-  inversion H0.
-  exact Hidentity.
-  exact (Hmp Hkestrel (Hasp H3)).
+  case H0 ; intros.
+  rewrite H1 ; exact Hidentity.
+  exact (Hmp Hkestrel (Hasp H1)).
   exact (Hmp Hkestrel Hstarling).
   exact (Hmp Hkestrel Hkestrel).
 Defined.
