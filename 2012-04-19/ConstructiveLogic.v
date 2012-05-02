@@ -62,7 +62,7 @@ Inductive hilbert : assump -> proposition -> Prop :=
   | Hasp      : forall {a : assump} {p : proposition}, elem p a -> hilbert a p
   | Hstarling : forall {a : assump} {p1 p2 p3 : proposition},
                 hilbert a ((p1 *-> p2 *-> p3) *-> (p1 *-> p2) *-> p1 *-> p3)
-  | Hkestrel  : forall (a : assump) {p1 p2 : proposition},
+  | Hkestrel  : forall {a : assump} {p1 p2 : proposition},
                 hilbert a (p1 *-> p2 *-> p1).
 
 Inductive nd : assump -> proposition -> Prop :=
@@ -70,8 +70,8 @@ Inductive nd : assump -> proposition -> Prop :=
   | NDasp  : forall {a : assump} {p : proposition}, elem p a -> nd a p
   | NDimpi : forall {a : assump} {p1 p2 : proposition}, nd (p1 :: a) p2 -> nd a (p1 *-> p2).
 
-Theorem NDstarling : forall {a : assump} {p1 p2 p3 : proposition},
-                     nd a ((p1 *-> p2 *-> p3) *-> (p1 *-> p2) *-> p1 *-> p3).
+Lemma NDstarling : forall {a : assump} {p1 p2 p3 : proposition},
+                   nd a ((p1 *-> p2 *-> p3) *-> (p1 *-> p2) *-> p1 *-> p3).
   intros.
   repeat apply NDimpi.
   apply (NDmp
@@ -79,10 +79,15 @@ Theorem NDstarling : forall {a : assump} {p1 p2 p3 : proposition},
     (NDmp (NDasp (Esucc Ezero)) (NDasp Ezero))).
 Defined.
 
-Theorem NDkestrel : forall {a : assump} {p1 p2 : proposition}, nd a (p1 *-> p2 *-> p1).
+Lemma NDkestrel : forall {a : assump} {p1 p2 : proposition}, nd a (p1 *-> p2 *-> p1).
   intros.
   repeat apply NDimpi.
   apply (NDasp (Esucc Ezero)).
+Defined.
+
+Lemma Hidentity : forall {a : assump} {p : proposition}, hilbert a (p *-> p).
+  intros.
+  exact (Hmp (Hmp (@Hstarling a p (p *-> p) p) Hkestrel) Hkestrel).
 Defined.
 
 Theorem hilbert_nd_homomorphism : forall {a : assump} {p : proposition}, hilbert a p -> nd a p.
@@ -96,12 +101,28 @@ Defined.
 
 Lemma Himpi : forall {a : assump} {p1 p2 : proposition}, hilbert (p1 :: a) p2 -> hilbert a (p1 *-> p2).
   intros.
-  induction H.
-  exact (Hmp (Hmp Hstarling IHhilbert1) IHhilbert2).
+  refine (hilbert_ind (fun a p1 =>
+    match a with
+    | nil => hilbert nil p1
+    | p2 :: a => hilbert a (p2 *-> p1)
+    end)
+    _ _ _ _ (p1 :: a) p2 H) ; intros ; destruct a0.
+  exact (Hmp H0 H2).
+  exact (Hmp (Hmp Hstarling H1) H3).
+  exact (Hasp H0).
+  inversion H0.
+  exact Hidentity.
+  exact (Hmp Hkestrel (Hasp H3)).
+  exact Hstarling.
+  exact (Hmp Hkestrel Hstarling).
+  exact Hkestrel.
+  exact (Hmp Hkestrel Hkestrel).
+Defined.
 
 Theorem nd_hilbert_homomorphism : forall {a : assump} {p : proposition}, nd a p -> hilbert a p.
   intros.
   induction H.
   exact (Hmp IHnd1 IHnd2).
-  exact (Hasp H).
-
+  exact (Hasp H).  
+  exact (Himpi IHnd).
+Defined.
