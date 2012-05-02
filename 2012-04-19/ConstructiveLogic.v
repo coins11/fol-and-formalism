@@ -94,6 +94,11 @@ Theorem hilbert_nd_homomorphism : forall {a : assump} {p : proposition}, hilbert
   exact NDkestrel.
 Defined.
 
+Lemma Himpi : forall {a : assump} {p1 p2 : proposition}, hilbert (p1 :: a) p2 -> hilbert a (p1 *-> p2).
+  intros.
+  induction H.
+  exact (Hmp (Hmp Hstarling IHhilbert1) IHhilbert2).
+
 Theorem nd_hilbert_homomorphism : forall {a : assump} {p : proposition}, nd a p -> hilbert a p.
   intros.
   induction H.
