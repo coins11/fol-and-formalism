@@ -7,47 +7,6 @@ Inductive elem {A : Set} : A -> list A -> Prop :=
   | Esucc : forall {x : A} {y : list A} {x' : A},
             elem x y -> elem x (x' :: y).
 
-Definition contains {A : Set} (l1 l2 : list A) : Set :=
-  forall (x : A), elem x l1 -> elem x l2.
-
-Lemma cid : forall {A : Set} {l : list A}, contains l l.
-  repeat intro.
-  exact H.
-Defined.
-
-Lemma ectrans : forall {A : Set} {x : A} {l1 l2 : list A},
-                elem x l1 -> contains l1 l2 -> elem x l2.
-  intros.
-  induction H.
-  apply (H0 x Ezero).
-  apply IHelem.
-  intro ; intro.
-  apply (H0 x0 (Esucc H1)).
-Defined.
-
-Lemma cstep : forall {A : Set} {x : A} {l1 l2 : list A},
-              contains l1 l2 -> contains (x :: l1) (x :: l2).
-  repeat intro.
-  inversion H0.
-  apply Ezero.
-  apply Esucc.
-  apply (ectrans H3 H).
-Defined.
-
-Lemma csucc : forall {A : Set} {x : A} {l1 l2 : list A},
-              contains l1 l2 -> contains l1 (x :: l2).
-  repeat intro.
-  inversion H0 ; apply (Esucc (ectrans H0 H)).
-Defined.
-
-Lemma emap : forall {A B : Set} {x : A} {l : list A} (f : A -> B),
-             elem x l -> elem (f x) (map f l).
-  intros.
-  induction H.
-  exact Ezero.
-  exact (Esucc IHelem).
-Defined.
-
 Inductive proposition : Set :=
     Pimp  : proposition -> proposition -> proposition
   | Patom : nat -> proposition.
