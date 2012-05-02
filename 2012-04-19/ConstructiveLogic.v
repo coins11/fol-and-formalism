@@ -1,4 +1,3 @@
-
 Require Import Arith.
 Require Import List.
 
@@ -16,8 +15,7 @@ Inductive hilbert : assump -> proposition -> Prop :=
   | Hasp      : forall {a : assump} {p : proposition}, In p a -> hilbert a p
   | Hstarling : forall {a : assump} {p1 p2 p3 : proposition},
                 hilbert a ((p1 *-> p2 *-> p3) *-> (p1 *-> p2) *-> p1 *-> p3)
-  | Hkestrel  : forall {a : assump} {p1 p2 : proposition},
-                hilbert a (p1 *-> p2 *-> p1).
+  | Hkestrel  : forall {a : assump} {p1 p2 : proposition}, hilbert a (p1 *-> p2 *-> p1).
 
 Inductive nd : assump -> proposition -> Prop :=
     NDmp   : forall {a : assump} {p1 p2 : proposition}, nd a (p1 *-> p2) -> nd a p1 -> nd a p2
