@@ -71,3 +71,8 @@ Theorem nd_hilbert_homomorphism : forall {a : assump} {p : proposition}, nd a p 
   exact (Hasp H).  
   exact (Himpi IHnd).
 Defined.
+
+Theorem nd_hilbert_isomorphism : forall {a : assump} {p : proposition}, nd a p <-> hilbert a p.
+  intros.
+  exact (conj nd_hilbert_homomorphism hilbert_nd_homomorphism).
+Defined.
