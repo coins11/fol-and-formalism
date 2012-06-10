@@ -191,41 +191,39 @@ Section Classical.
 
 Variable lem : forall (P : Prop), P \/ ~ P.
 
+Ltac dnind :=
+  match goal with
+    | [ |- ?G ] => destruct (lem G) ; [auto | apply False_ind]
+  end.
+
 Theorem p21 : forall (A : Prop), ~ ~ A -> A.
-  intros ; destruct (lem A) ; tauto.
+  intros ; dnind ; tauto.
 Qed.
 
 Theorem p25 : forall (A B : Prop), (~ B -> ~ A) -> (A -> B).
-  intros ; destruct (lem B) ; tauto.
+  intros ; dnind ; tauto.
 Qed.
 
 Theorem p26 : forall (A B : Prop), ~ (A /\ B) -> ~ A \/ ~ B.
-  intros ; destruct (lem A) ; tauto.
+  intros ; dnind ; tauto.
 Qed.
 
 Theorem p29 : forall (A B : Prop), (A -> B) -> ~ A \/ B.
-  intros ; destruct (lem A) ; tauto.
+  intros ; dnind ; tauto.
 Qed.
 
 Theorem p42 : forall (T : Set) (A : T -> Prop),
   ~ (forall (x : T), A x) -> (exists x : T, ~ A x).
-  intros.
-  destruct (lem (exists x : T, ~ A x)) ; auto.
-  apply False_ind.
-  apply H.
-  intro.
-  destruct (lem (A x)) ; auto.
-  destruct (H0 (ex_intro _ x H1)).
+  intros ; dnind ; apply H ; intro ; dnind ; exact (H0 (ex_intro _ x H1)).
 Qed.
 
 Theorem p48 : forall (A B : Prop), (~ A -> B) -> A \/ B.
-  intros ; destruct (lem A) ; auto.
+  intros ; dnind ; tauto.
 Qed.
 
 Theorem p49 : forall (T : Set) (A : T -> Prop),
   ~ (exists x : T, ~ A x) -> (forall (x : T), A x).
-  intros ; destruct (lem (A x)) ; auto.
-  destruct (H (ex_intro _ x H0)).
+  intros ; dnind ; exact (H (ex_intro _ x H0)).
 Qed.
 
 Theorem p51 : forall (T : Set) (A : T -> Prop) (B : Prop),
