@@ -37,7 +37,7 @@ Lemma NDkestrel : forall {a : assump} {p1 p2 : proposition}, nd a (p1 *-> p2 *->
   apply NDasp ; unfold In ; auto.
 Defined.
 
-Lemma Hidentity : forall {a : assump} {p : proposition}, hilbert a (p *-> p).
+Lemma Hidiot : forall {a : assump} {p : proposition}, hilbert a (p *-> p).
   intros.
   exact (Hmp (Hmp (@Hstarling a p (p *-> p) p) Hkestrel) Hkestrel).
 Defined.
@@ -58,7 +58,7 @@ Lemma Himpi : forall {a : assump} {p1 p2 : proposition}, hilbert (p1 :: a) p2 ->
     intros ; destruct a0 ; auto.
   exact (Hmp (Hmp Hstarling H1) H3).
   case H0 ; intros.
-  rewrite H1 ; exact Hidentity.
+  rewrite H1 ; exact Hidiot.
   exact (Hmp Hkestrel (Hasp H1)).
   exact (Hmp Hkestrel Hstarling).
   exact (Hmp Hkestrel Hkestrel).
@@ -76,3 +76,4 @@ Theorem nd_hilbert_isomorphism : forall {a : assump} {p : proposition}, nd a p <
   intros.
   exact (conj nd_hilbert_homomorphism hilbert_nd_homomorphism).
 Defined.
+
