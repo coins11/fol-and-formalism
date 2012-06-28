@@ -1,0 +1,323 @@
+\documentclass[twocolumn, a4paper]{article}
+
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{ascmac}
+\usepackage{enumitem}
+\usepackage[hdivide={18mm,, 18mm}, vdivide={11mm,, 11mm}, nohead]{geometry}
+\usepackage{multicol}
+
+\usepackage{bussproofs}
+
+\title{論理と形式化 チートシート}
+\author{坂口和彦}
+\date{2012/06/27}
+
+\pagestyle{empty}
+\columnseprule=0.4pt
+\setdescription{labelsep=\textwidth}
+
+\newcommand{\Asp}{\rm Asp}
+
+\makeatletter
+\renewcommand\section%
+{\@startsection{section}{1}{\z@}{1ex}{1ex}{\normalfont\normalsize\bfseries}}
+\makeatother
+
+\begin{document}
+
+\footnotesize
+
+\section{NJ, NK}
+
+\begin{description}
+\item[asp (assumption)]
+  \begin{prooftree}
+    \AxiomC{$[a : A]$}
+  \end{prooftree}
+  \[
+    \Asp(\Pi) = \{a : A\}
+  \]
+\item[$\wedge I$ (and-introduction)]
+  \begin{prooftree}
+    \AxiomC{$\Pi_1$}
+    \noLine
+    \UnaryInfC{$A$}
+    \AxiomC{$\Pi_2$}
+    \noLine
+    \UnaryInfC{$B$}
+    \BinaryInfC{$A \wedge B$}
+  \end{prooftree}
+  \[
+    \Asp(\Pi) = \Asp(\Pi_1) \cup \Asp(\Pi_2)
+  \]
+\item[$\wedge E_1$ (and-elimination-1)]
+  \begin{prooftree}
+    \AxiomC{$\Pi_1$}
+    \noLine
+    \UnaryInfC{$A \wedge B$}
+    \UnaryInfC{A}
+  \end{prooftree}
+  \[
+    \Asp(\Pi) = \Asp(\Pi_1)
+  \]
+\item[$\wedge E_1$ (and-elimination-2)]
+  \begin{prooftree}
+    \AxiomC{$\Pi_1$}
+    \noLine
+    \UnaryInfC{$A \wedge B$}
+    \UnaryInfC{B}
+  \end{prooftree}
+  \[
+    \Asp(\Pi) = \Asp(\Pi_1)
+  \]
+\item[$\vee I_1$ (or-introduction-1)]
+  \begin{prooftree}
+    \AxiomC{$\Pi_1$}
+    \noLine
+    \UnaryInfC{$A$}
+    \UnaryInfC{$A \vee B$}
+  \end{prooftree}
+  \[
+    \Asp(\Pi) = \Asp(\Pi_1)
+  \]
+\item[$\vee I_2$ (or-introduction-2)]
+  \begin{prooftree}
+    \AxiomC{$\Pi_1$}
+    \noLine
+    \UnaryInfC{$B$}
+    \UnaryInfC{$A \vee B$}
+  \end{prooftree}
+  \[
+    \Asp(\Pi) = \Asp(\Pi_1)
+  \]
+\item[$\vee E$ (or-elimination)]
+  \begin{prooftree}
+    \AxiomC{$\Pi_1$}
+    \noLine
+    \UnaryInfC{$A \vee B$}
+    \AxiomC{$\Pi_2$}
+    \noLine
+    \UnaryInfC{$C$}
+    \AxiomC{$\Pi_3$}
+    \noLine
+    \UnaryInfC{$C$}
+    \RightLabel{$a, b$}
+    \TrinaryInfC{$C$}
+  \end{prooftree}
+  \[
+    \Asp(\Pi) = \Asp(\Pi_1) \cup (\Asp(\Pi_2)-\{a : A\}) \cup (\Asp(\Pi_3)-\{b : B\})
+  \]
+\item[$\supset I$ (implication-introduction)]
+  \begin{prooftree}
+    \AxiomC{$\Pi_1$}
+    \noLine
+    \UnaryInfC{$B$}
+    \RightLabel{a}
+    \UnaryInfC{$A \supset B$}
+  \end{prooftree}
+  \[
+    \Asp(\Pi) = \Asp(\Pi_1) - \{a : A\}
+  \]
+\item[$\supset E$ (implication-elimination)]
+  \begin{prooftree}
+    \AxiomC{$\Pi_1$}
+    \noLine
+    \UnaryInfC{$A \supset B$}
+    \AxiomC{$\Pi_2$}
+    \noLine
+    \UnaryInfC{$A$}
+    \BinaryInfC{$B$}
+  \end{prooftree}
+  \[
+    \Asp(\Pi) = \Asp(\Pi_1) \cup \Asp(\Pi_2)
+  \]
+\item[$\neg I$ (not-introduction)]
+  \begin{prooftree}
+    \AxiomC{$\Pi_1$}
+    \noLine
+    \UnaryInfC{$\bot$}
+    \RightLabel{$a$}
+    \UnaryInfC{$\neg A$}
+  \end{prooftree}
+  \[
+    \Asp(\Pi) = \Asp(\Pi_1) - \{a : A\}
+  \]
+\item[$\neg E$ (not-elimination)]
+  \begin{prooftree}
+    \AxiomC{$\Pi_1$}
+    \noLine
+    \UnaryInfC{$\neg A$}
+    \AxiomC{$\Pi_2$}
+    \noLine
+    \UnaryInfC{$A$}
+    \BinaryInfC{$\bot$}
+  \end{prooftree}
+  \[
+    \Asp(\Pi) = \Asp(\Pi_1) \cup \Asp(\Pi_2)
+  \]
+\item[$\bot E$ (bottom-elimination)]
+  \begin{prooftree}
+    \AxiomC{$\Pi_1$}
+    \noLine
+    \UnaryInfC{$\bot$}
+    \UnaryInfC{$A$}
+  \end{prooftree}
+  \[
+    \Asp(\Pi) = \Asp(\Pi_1)
+  \]
+\item[* lem (law of execluded middle)]
+  \[
+    A \vee \neg A
+  \]
+  \[
+    \Asp(\Pi) = \emptyset
+  \]
+\item[$\forall I$ (forall-introduction)]
+  \begin{prooftree}
+    \AxiomC{$\Pi_1$}
+    \noLine
+    \UnaryInfC{$A$}
+    \UnaryInfC{$\forall x.A$}
+  \end{prooftree}
+  \[
+    \Asp(\Pi) = \Asp(\Pi_1)
+  \]
+  $\Asp(\Pi_1)$ contains no free occurrence of $x$.
+\item[$\forall E$ (forall-elimination)]
+  \begin{prooftree}
+    \AxiomC{$\Pi_1$}
+    \noLine
+    \UnaryInfC{$\forall x.A$}
+    \UnaryInfC{$A[t/x]$}
+  \end{prooftree}
+  \[
+    \Asp(\Pi) = \Asp(\Pi_1)
+  \]
+\item[$\exists I$ (exists-introduction)]
+  \begin{prooftree}
+    \AxiomC{$\Pi_1$}
+    \noLine
+    \UnaryInfC{$A[t/x]$}
+    \UnaryInfC{$\exists x.A$}
+  \end{prooftree}
+  \[
+    \Asp(\Pi) = \Asp(\Pi_1)
+  \]
+\item[$\exists E$ (exists-elimination)]
+  \begin{prooftree}
+    \AxiomC{$\Pi_1$}
+    \noLine
+    \UnaryInfC{$\exists x.A$}
+    \AxiomC{$\Pi_2$}
+    \noLine
+    \UnaryInfC{$C$}
+    \RightLabel{a}
+    \BinaryInfC{$C$}
+  \end{prooftree}
+  \[
+    \Asp(\Pi) = \Asp(\Pi_1) \cup (\Asp(\Pi_2) - \{a : A\})
+  \]
+  $(\Asp(\Pi_2) - \{a : A\})$ contains no free occurrence of $x$.
+\end{description}
+
+\section{NJ$^=$, NK$^=$}
+
+\begin{description}
+\item[${\rm eq}_1$ (reflexivity)]
+  \[
+    t = t
+  \]
+  \[
+    \Asp(\Pi) = \emptyset
+  \]
+\item[${\rm eq}_2$ (symmetry)]
+  \begin{prooftree}
+    \AxiomC{$\Pi_1$}
+    \noLine
+    \UnaryInfC{$t_1 = t_2$}
+    \UnaryInfC{$t_2 = t_1$}
+  \end{prooftree}
+  \[
+    \Asp(\Pi) = \Asp(\Pi_1)
+  \]
+\item[${\rm eq}_3$ (replace)]
+  \begin{prooftree}
+    \AxiomC{$\Pi_1$}
+    \noLine
+    \UnaryInfC{$t_1 = t_2$}
+    \AxiomC{$\Pi_2$}
+    \noLine
+    \UnaryInfC{$A[t_1/a]$}
+    \BinaryInfC{$A[t_2/a]$}
+  \end{prooftree}
+  \[
+    \Asp(\Pi) = \Asp(\Pi_1) \cup \Asp(\Pi_2)
+  \]
+\end{description}
+
+\section{PA}
+
+\begin{description}
+\item[peano 1]
+  \[
+    \neg s(x) = 0
+  \]
+  \[
+    \Asp(\Pi) = \emptyset
+  \]
+\item[peano 2]
+  \begin{prooftree}
+    \AxiomC{$\Pi_1$}
+    \noLine
+    \UnaryInfC{$s(t_1) = s(t_2)$}
+    \UnaryInfC{$t_1 = t_2$}
+  \end{prooftree}
+  \[
+    \Asp(\Pi) = \Asp(\Pi_1)
+  \]
+\item[peano 3]
+  \begin{prooftree}
+    \AxiomC{$\Pi_1$}
+    \noLine
+    \UnaryInfC{$A[0/x]$}
+    \AxiomC{$\Pi_2$}
+    \noLine
+    \UnaryInfC{$A[s(x)/x]$}
+    \RightLabel{$a$}
+    \BinaryInfC{$\forall x.A$}
+  \end{prooftree}
+  \[
+    \Asp(\Pi) = \Asp(\Pi_1) \cup (\Asp(\Pi_2) - \{a : A\})
+  \]
+\item[+1]
+  \[
+    0+x=x
+  \]
+  \[
+    \Asp(\Pi) = \emptyset
+  \]
+\item[+2]
+  \[
+    s(x)+y = s(x+y)
+  \]
+  \[
+    \Asp(\Pi) = \emptyset
+  \]
+\item[*1]
+  \[
+    0*x=0
+  \]
+  \[
+    \Asp(\Pi) = \emptyset
+  \]
+\item[*2]
+  \[
+    s(x)*y = (x*y)+y
+  \]
+  \[
+    \Asp(\Pi) = \emptyset
+  \]
+\end{description}
+
+\end{document}
